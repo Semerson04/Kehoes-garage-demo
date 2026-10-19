@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find and See - Kehoes Garage, Enniscorthy</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --pink-active: #ec4899;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-expanded: #26334d;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 12px;
+            max-width: 480px;
+            margin: 0 auto;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Automotive & Mechanical Background Accents */
+        body::before, body::after {
+            content: "";
+            position: fixed;
+            z-index: -1;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        /* Car Wheel Background Accent */
+        body::before {
+            top: -40px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 18px dashed #ffffff;
+            outline: 12px solid #ffffff;
+            box-shadow: inset 0 0 0 35px #ffffff;
+        }
+
+        /* Gear Background Accent */
+        body::after {
+            bottom: -60px;
+            left: -60px;
+            width: 230px;
+            height: 230px;
+            border-radius: 50%;
+            border: 22px dotted #ffffff;
+            outline: 10px solid #ffffff;
+            box-shadow: inset 0 0 0 38px #ffffff;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 4px 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .logo-area h1 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-area p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .back-link {
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            background: var(--card-bg);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 4px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Pink Button State when Clicked */
+        .tab-btn.clicked-pink, .action-btn.clicked-pink {
+            background-color: var(--pink-active) !important;
+            color: white !important;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Job Cards */
+        .job-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .job-card:hover {
+            border-color: var(--primary);
+        }
+
+        .job-card.is-overdue {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .job-card.expanded {
+            background: var(--card-expanded);
+            border-color: var(--primary);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .job-reg {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            background: rgba(255,255,255,0.08);
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .job-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .job-customer {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .job-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        /* Expanded Details Area */
+        .job-details-content {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .job-card.expanded .job-details-content {
+            display: block;
+        }
+
+        .detail-group {
+            margin-bottom: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            color: var(--text-main);
+        }
+
+        .phone-link {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .job-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border);
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .stage-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        /* Stage Colors */
+        .stage-0 { background: #334155; color: #f8fafc; } 
+        .stage-1 { background: #d97706; color: white; } 
+        .stage-2 { background: #7c3aed; color: white; } 
+        .stage-3 { background: #0284c7; color: white; } 
+        .stage-4 { background: #10b981; color: white; } 
+
+        .action-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Customer Lookup View */
+        .lookup-box {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .lookup-box input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .lookup-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: none;
+        }
+
+        .status-tracker {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+        }
+
+        /* Office Counters */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .group-header {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin: 14px 0 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <h1>Find & See 👀 ⚙️</h1>
+            <p>Kehoes Garage, Enniscorthy</p>
+        </div>
+        <a href="index.html" class="back-link">&larr; Exit Demo</a>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchView('workshop', this)">🚗 1. Workshop</button>
+        <button class="tab-btn" onclick="switchView('customer', this)">🔍 2. Customer</button>
+        <button class="tab-btn" onclick="switchView('office', this)">📊 3. Office</button>
+    </div>
+
+    <!-- VIEW 1: WORKSHOP -->
+    <section id="workshopView" class="view-section active">
+        <h2>Workshop Floor <span style="font-size:0.75rem; font-weight:normal; color:var(--text-muted);">Tap card for details</span></h2>
+        <div id="workshopList"></div>
+    </section>
+
+    <!-- VIEW 2: CUSTOMER -->
+    <section id="customerView" class="view-section">
+        <h2>Customer Status Check</h2>
+        <div class="lookup-box">
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px;">Enter Job Number (e.g., J-101) & Reg</p>
+            <input type="text" id="searchJobId" placeholder="Job Number (e.g. J-101)">
+            <input type="text" id="searchReg" placeholder="Car Registration (e.g. 182-WX-44)">
+            <button class="action-btn" onclick="lookupJob(this)">Check Status</button>
+        </div>
+        <div id="lookupResult" class="result-card"></div>
+    </section>
+
+    <!-- VIEW 3: OFFICE -->
+    <section id="officeView" class="view-section">
+        <h2>Office Dashboard</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-num" id="readyCount">0</div>
+                <div class="stat-label">Ready & Uncollected</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="partsCount" style="color: var(--danger);">0</div>
+                <div class="stat-label">Waiting Parts > 2 Days</div>
+            </div>
+        </div>
+        <div id="officeList"></div>
+    </section>
+
+    <footer>
+        Kehoes Garage Internal Prototype &copy; 2026
+    </footer>
+
+    <script>
+        const stages = [
+            "Booked in",
+            "Being checked",
+            "Waiting for parts",
+            "Being fixed",
+            "Ready to collect"
+        ];
+
+        const plainNotes = [
+            "Car is dropped off and parked in the yard waiting on its bay.",
+            "Mechanic is currently running diagnostics and inspecting the issue.",
+            "Waiting on delivery from motor factor. We'll update you as soon as it arrives.",
+            "Parts arrived and work is actively underway on the ramp.",
+            "All work is complete, tested, and ready for your collection!"
+        ];
+
+        const defaultJobs = [
+            { 
+                id: "J-101", reg: "182-WX-44", customer: "Sean Murphy", phone: "+353 87 234 5678", 
+                desc: "Full service & brake pads", 
+                serviceDetail: "Full 50-point engine service, oil & filter change, replacement of front brake pads and discs.", 
+                ownerQuestions: "Asked: 'Can you check a light squeaking noise coming from the front right wheel when braking gently?'", 
+                stage: 0, daysInParts: 0, source: "Phone", expanded: false 
+            },
+            { 
+                id: "J-102", reg: "211-WX-902", customer: "Mary Doyle", phone: "+353 85 987 1234", 
+                desc: "Clutch replacement", 
+                serviceDetail: "Gearbox removal, replacing dual-mass flywheel, clutch kit, and release bearing.", 
+                ownerQuestions: "Asked: 'Will it be ready before Thursday evening for the school run?'", 
+                stage: 1, daysInParts: 0, source: "WhatsApp", expanded: false 
+            },
+            { 
+                id: "J-103", reg: "171-WD-12", customer: "Liam Kavanagh", phone: "+353 83 456 7890", 
+                desc: "Turbo actuator fault", 
+                serviceDetail: "Diagnostics for intermittent loss of power under acceleration. Ordering replacement turbo electronic actuator.", 
+                ownerQuestions: "Asked: 'Is it safe to drive short distances while waiting for the part?'", 
+                stage: 2, daysInParts: 4, source: "Walk-in", expanded: false 
+            },
+            { 
+                id: "J-104", reg: "191-WX-553", customer: "Aoife Byrne", phone: "+353 87 654 3210", 
+                desc: "Timing belt kit", 
+                serviceDetail: "Replacement of timing belt, tensioners, pulleys, and water pump as part of 100k km scheduled service.", 
+                ownerQuestions: "Asked: 'Can you check the coolant level too as I noticed it dropped slightly last week?'", 
+                stage: 2, daysInParts: 1, source: "Instagram", expanded: false 
+            },
+            { 
+                id: "J-105", reg: "202-WW-77", customer: "Padraig Ryan", phone: "+353 86 111 2233", 
+                desc: "NCT failure suspension leak", 
+                serviceDetail: "Replacing rear shock absorbers and checking tracking/alignment post-replacement.", 
+                ownerQuestions: "Asked: 'Do you re-test it for the NCT or do I need to book a re-inspection?'", 
+                stage: 3, daysInParts: 0, source: "Phone", expanded: false 
+            },
+            { 
+                id: "J-106", reg: "161-WX-889", customer: "Siobhan Kelly", phone: "+353 89 333 4455", 
+                desc: "Oil leak diagnostic", 
+                serviceDetail: "Steam cleaned engine bay, pressure tested oil cooler lines, and replaced rocker cover gasket.", 
+                ownerQuestions: "Asked: 'Can you text me when it's ready so I can arrange a lift from Ferns?'", 
+                stage: 4, daysInParts: 0, source: "WhatsApp", expanded: false 
+            },
+            { 
+                id: "J-107", reg: "221-WX-104", customer: "Eoin Brennan", phone: "+353 87 777 8899", 
+                desc: "New tyre fitting & balancing", 
+                serviceDetail: "Fitting 2x new 205/55R16 tyres, computer wheel balancing, and checking tire pressure sensors.", 
+                ownerQuestions: "Asked: 'Can you put the two new tyres on the rear axle?'", 
+                stage: 4, daysInParts: 0, source: "Walk-in", expanded: false 
+            },
+            { 
+                id: "J-108", reg: "151-WD-99", customer: "Niamh O'Connor", phone: "+353 86 444 5566", 
+                desc: "Battery and alternator test", 
+                serviceDetail: "Drop-test 12V battery and check alternator charging output voltage under load.", 
+                ownerQuestions: "Asked: 'It wouldn't start twice outside the shop yesterday morning.'", 
+                stage: 0, daysInParts: 0, source: "Phone", expanded: false 
+            }
+        ];
+
+        let jobs = JSON.parse(localStorage.getItem('kehoes_jobs_v2')) || defaultJobs;
+
+        function saveJobs() {
+            localStorage.setItem('kehoes_jobs_v2', JSON.stringify(jobs));
+            renderAll();
+        }
+
+        function switchView(viewName, btnEl) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active', 'clicked-pink'));
+
+            btnEl.classList.add('active', 'clicked-pink');
+
+            if (viewName === 'workshop') {
+                document.getElementById('workshopView').classList.add('active');
+            } else if (viewName === 'customer') {
+                document.getElementById('customerView').classList.add('active');
+            } else if (viewName === 'office') {
+                document.getElementById('officeView').classList.add('active');
+            }
+        }
+
+        function toggleCard(index, event) {
+            if (event.target.tagName === 'BUTTON' || event.target.tagName === 'A') return;
+            jobs[index].expanded = !jobs[index].expanded;
+            renderWorkshop();
+        }
+
+        function advanceStage(index, event, btnEl) {
+            event.stopPropagation();
+            btnEl.classList.add('clicked-pink');
+            
+            setTimeout(() => {
+                if (jobs[index].stage < 4) {
+                    jobs[index].stage += 1;
+                } else {
+                    jobs[index].stage = 0;
+                }
+                saveJobs();
+            }, 150);
+        }
+
+        function renderWorkshop() {
+            const container = document.getElementById('workshopList');
+            container.innerHTML = '';
+
+            jobs.forEach((job, index) => {
+                const isOverdueParts = (job.stage === 2 && job.daysInParts > 2);
+                container.innerHTML += `
+                    <div class="job-card ${isOverdueParts ? 'is-overdue' : ''} ${job.expanded ? 'expanded' : ''}" onclick="toggleCard(${index}, event)">
+                        <div class="job-header">
+                            <span class="job-reg">${job.reg}</span>
+                            <span class="job-id">${job.id} &bull; ${job.source}</span>
+                        </div>
+                        <div class="job-customer">${job.customer}</div>
+                        <div class="job-desc">${job.desc}</div>
+                        
+                        <div class="job-details-content">
+                            <div class="detail-group">
+                                <div class="detail-label">📞 Contact Phone</div>
+                                <div class="detail-value"><a href="tel:${job.phone}" class="phone-link">${job.phone}</a></div>
+                            </div>
+                            <div class="detail-group" style="margin-top: 8px;">
+                                <div class="detail-label">🔧 Service & Repair Details</div>
+                                <div class="detail-value">${job.serviceDetail}</div>
+                            </div>
+                            <div class="detail-group" style="margin-top: 8px;">
+                                <div class="detail-label">💬 Owner Questions / Notes</div>
+                                <div class="detail-value" style="font-style: italic; color: #38bdf8;">${job.ownerQuestions}</div>
+                            </div>
+                            <button class="action-btn" onclick="advanceStage(${index}, event, this)">
+                                Advance Stage: ${job.stage < 4 ? stages[job.stage + 1] : 'Restart (Booked In)'} &rarr;
+                            </button>
+                        </div>
+
+                        <div class="job-meta">
+                            <span class="stage-badge stage-${job.stage}">${stages[job.stage]}</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">${job.expanded ? '▲ Hide details' : '▼ Tap for details'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderOffice() {
+            const container = document.getElementById('officeList');
+            container.innerHTML = '';
+
+            let readyCount = 0;
+            let partsCount = 0;
+
+            jobs.forEach(job => {
+                if (job.stage === 4) readyCount++;
+                if (job.stage === 2 && job.daysInParts > 2) partsCount++;
+            });
+
+            document.getElementById('readyCount').innerText = readyCount;
+            document.getElementById('partsCount').innerText = partsCount;
+
+            stages.forEach((stageName, sIndex) => {
+                const stageJobs = jobs.filter(j => j.stage === sIndex);
+                if (stageJobs.length > 0) {
+                    container.innerHTML += `<div class="group-header">${stageName} (${stageJobs.length})</div>`;
+                    stageJobs.forEach(job => {
+                        const isOverdueParts = (job.stage === 2 && job.daysInParts > 2);
+                        container.innerHTML += `
+                            <div class="job-card" style="padding: 10px 14px; margin-bottom: 8px; cursor: default;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span class="job-reg" style="font-size:0.9rem;">${job.reg}</span>
+                                    <span class="job-id">${job.id} &bull; ${job.customer}</span>
+                                </div>
+                                <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+                                    ${job.desc} 
+                                    ${isOverdueParts ? '<span style="color:var(--danger); font-weight:bold;">(Waiting parts ' + job.daysInParts + ' days!)</span>' : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            });
+        }
+
+        function lookupJob(btnEl) {
+            btnEl.classList.add('clicked-pink');
+            const jId = document.getElementById('searchJobId').value.trim().toUpperCase();
+            const jReg = document.getElementById('searchReg').value.trim().toUpperCase();
+            const resultCard = document.getElementById('lookupResult');
+
+            const found = jobs.find(j => j.id.toUpperCase() === jId && j.reg.toUpperCase().includes(jReg));
+
+            if (found) {
+                resultCard.style.display = 'block';
+                resultCard.innerHTML = `
+                    <div style="font-weight:800; font-size:1.1rem; margin-bottom:4px;">${found.reg}</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">Job Ref: ${found.id} &bull; ${found.customer}</div>
+                    <div class="status-tracker">
+                        <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Current Status</div>
+                        <div style="font-size:1rem; font-weight:800; color:var(--primary); margin: 4px 0 8px;">${stages[found.stage]}</div>
+                        <p style="font-size:0.88rem; color:var(--text-main); font-style:italic;">"${plainNotes[found.stage]}"</p>
+                    </div>
+                `;
+            } else {
+                resultCard.style.display = 'block';
+                resultCard.innerHTML = `<p style="color: var(--danger); text-align:center; font-weight:600;">No matching job found. Please check your job number and car registration.</p>`;
+            }
+        }
+
+        function renderAll() {
+            renderWorkshop();
+            renderOffice();
+        }
+
+        renderAll();
+    </script>
+</body>
+</html>
